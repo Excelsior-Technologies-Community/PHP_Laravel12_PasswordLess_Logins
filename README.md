@@ -1,5 +1,4 @@
 # PHP_Laravel12_PasswordLess_Login
-# Laravel Passwordless Login System (Magic Link Authentication)
 
 ## Project Overview
 
