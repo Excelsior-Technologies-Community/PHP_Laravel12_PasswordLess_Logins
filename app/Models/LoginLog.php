@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class LoginLog extends Model
 {
@@ -18,26 +18,32 @@ class LoginLog extends Model
         'ip_address',
         'user_agent',
         'status',
-        'cretated_at',
     ];
+
     protected $casts = [
         'created_at' => 'datetime',
     ];
 
-    /**
-     * User associated with this login attempt.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Magic link associated with this login attempt.
-     */
     public function magicLink()
     {
         return $this->belongsTo(MagicLink::class);
     }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'success' => 'Successful Login',
+            'failed' => 'Failed',
+            'expired' => 'Expired Link',
+            'already_used' => 'Already Used',
+            'invalid' => 'Invalid Link',
+            'rate_limited' => 'Rate Limited',
+            default => ucfirst(str_replace('_', ' ', $this->status)),
+        };
+    }
 }
-    
