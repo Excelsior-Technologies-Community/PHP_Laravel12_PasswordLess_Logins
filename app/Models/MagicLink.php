@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,26 +14,40 @@ class MagicLink extends Model
         'email',
         'token',
         'expires_at',
-        'used'
+        'used',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
-        'used' => 'boolean'
+        'used' => 'boolean',
     ];
 
+    /**
+     * Generate a new magic login token.
+     */
     public static function generateToken($email)
     {
         return self::create([
-            'email' => $email,
+            'email' => strtolower(trim($email)),
             'token' => Str::random(64),
             'expires_at' => now()->addMinutes(30),
-            'used' => false
+            'used' => false,
         ]);
     }
 
+    /**
+     * Check whether the magic link is still valid.
+     */
     public function isValid()
     {
         return !$this->used && $this->expires_at->isFuture();
+    }
+
+    /**
+     * Relationship with login logs.
+     */
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class);
     }
 }

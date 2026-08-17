@@ -1,18 +1,18 @@
 <?php
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use Notifiable;
 
     protected $fillable = [
         'name',
         'email',
-        'password', // Keep this for Laravel's auth system
+        'password',
     ];
 
     protected $hidden = [
@@ -20,19 +20,19 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    // Override the boot method to set a default password if not provided
-    protected static function boot()
+    protected function casts(): array
     {
-        parent::boot();
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
-        static::creating(function ($user) {
-            if (empty($user->password)) {
-                $user->password = bcrypt(uniqid());
-            }
-        });
+    /**
+     * Login history for this user.
+     */
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class);
     }
 }
