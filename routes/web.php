@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\LoginHistoryController;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +31,7 @@ Route::get('/login/magic/{token}', [
     MagicLinkController::class,
     'verifyLogin'
 ])->name('magic.verify');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -60,11 +63,45 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::post('/logout', function () {
+
         Auth::logout();
 
         request()->session()->invalidate();
+
         request()->session()->regenerateToken();
 
         return redirect('/');
     })->name('logout');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->group(function () {
+
+        Route::get('/dashboard', [
+            DashboardController::class,
+            'index'
+        ])->name('admin.dashboard');
+
+        Route::get('/users', [
+            UserController::class,
+            'index'
+        ])->name('admin.users');
+
+        Route::patch('/users/{user}/toggle', [
+            UserController::class,
+            'toggleStatus'
+        ])->name('admin.users.toggle');
+
+        Route::delete('/users/{user}', [
+            UserController::class,
+            'destroy'
+        ])->name('admin.users.destroy');
+    });
